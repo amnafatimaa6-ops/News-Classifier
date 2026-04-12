@@ -1,18 +1,19 @@
 import streamlit as st
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import pandas as pd
 
 # ----------------------------
-# PAGE CONFIG (PRO LOOK)
+# PAGE CONFIG (PRO LEVEL)
 # ----------------------------
 st.set_page_config(
-    page_title="AG News Classifier",
+    page_title="AG News Classifier | NLP Project",
     page_icon="🧠",
     layout="centered"
 )
 
 st.title("🧠 AG News Classifier (BERT)")
-st.caption("Scholarship Project | NLP | Transformer-based Text Classification")
+st.caption("Scholarship Portfolio Project | NLP | Transformer-based Text Classification")
 
 labels = ["World", "Sports", "Business", "Sci/Tech"]
 
@@ -31,6 +32,15 @@ model.to(device)
 model.eval()
 
 # ----------------------------
+# SIDEBAR INFO (PORTFOLIO LOOK)
+# ----------------------------
+st.sidebar.title("📊 Project Info")
+st.sidebar.write("NLP Text Classification using BERT")
+st.sidebar.write("Dataset: AG News")
+st.sidebar.write("Model: Fine-tuned Transformer")
+st.sidebar.write("Classes: 4")
+
+# ----------------------------
 # SAMPLES
 # ----------------------------
 samples = {
@@ -41,25 +51,26 @@ samples = {
 }
 
 # ----------------------------
-# INPUT MODE
+# INPUT SECTION
 # ----------------------------
-st.markdown("### 📌 Input Section")
+st.markdown("## 📌 Input Section")
 
-mode = st.radio("Choose input mode:", ["✍️ Write my own", "📚 Use sample"])
+mode = st.radio("Choose input mode:", ["✍️ Write your own", "📚 Use sample"])
 
 text = ""
 
 if mode == "📚 Use sample":
     choice = st.selectbox("Select a sample", list(samples.keys()))
     text = samples[choice]
-    st.info(text)
+    st.text_area("Selected text", value=text, height=120, disabled=True)
 else:
-    text = st.text_area("Enter your text here", height=150)
+    text = st.text_area("Enter your text", height=150)
 
 # ----------------------------
 # PREDICTION
 # ----------------------------
 if st.button("🚀 Predict Category"):
+
     if not text.strip():
         st.warning("Please enter text first.")
     else:
@@ -80,19 +91,44 @@ if st.button("🚀 Predict Category"):
         st.success(f"Category: **{labels[pred]}**")
 
         confidence = float(probs[pred])
-
-        st.markdown("### 📊 Confidence Score")
-        st.progress(confidence)
-        st.write(f"Confidence: **{confidence:.3f}**")
+        st.metric(label="Confidence Score", value=f"{confidence:.3f}")
 
         # ----------------------------
-        # TOP 2 PREDICTIONS (PORTFOLIO LEVEL)
+        # VISUAL PROBABILITY TABLE
         # ----------------------------
+        st.markdown("## 📊 Class Probabilities")
+
+        data = {
+            "Class": labels,
+            "Probability": [float(p) for p in probs]
+        }
+
+        df = pd.DataFrame(data)
+        st.bar_chart(df.set_index("Class"))
+
+        # ----------------------------
+        # TOP-K ANALYSIS
+        # ----------------------------
+        st.markdown("## 🧠 Model Interpretation (Top Predictions)")
+
         top2 = torch.topk(probs, 2)
-
-        st.markdown("### 🧠 Model Reasoning (Top Predictions)")
 
         for i in range(2):
             idx = top2.indices[i].item()
             score = float(top2.values[i])
-            st.write(f"🔹 {labels[idx]} → {score:.3f}")
+            st.write(f"🔹 **{labels[idx]}** → {score:.3f}")
+
+        # ----------------------------
+        # SIMPLE INSIGHT BOX
+        # ----------------------------
+        st.info(
+            "The model uses contextual embeddings from BERT to classify news text "
+            "based on semantic patterns learned from the AG News dataset."
+        )
+
+# ----------------------------
+# FOOTER (PORTFOLIO SIGNATURE)
+# ----------------------------
+st.markdown("---")
+st.markdown("📌 Built using PyTorch + Transformers + Streamlit")
+st.markdown("🎓 Suitable for ML Portfolio / Scholarship Submission")
