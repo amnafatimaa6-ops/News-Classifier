@@ -2,19 +2,10 @@ import streamlit as st
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-# ----------------------------
-# APP TITLE
-# ----------------------------
 st.title("📰 AG News Classifier (BERT)")
 
-# ----------------------------
-# LABELS
-# ----------------------------
 labels = ["World", "Sports", "Business", "Sci/Tech"]
 
-# ----------------------------
-# PRETRAINED FINE-TUNED MODEL
-# ----------------------------
 MODEL_NAME = "textattack/bert-base-uncased-ag-news"
 
 @st.cache_resource
@@ -30,25 +21,31 @@ model.to(device)
 model.eval()
 
 # ----------------------------
-# UI
+# SAMPLE DATA
 # ----------------------------
-st.write("Enter a news headline or article below:")
-
-text = st.text_area("News Input")
-
-# Sample examples
 samples = {
-    "World": "The government announced new foreign policy reforms today.",
-    "Sports": "The team won the championship in a thrilling final match.",
-    "Business": "Stock markets surged after interest rate cuts.",
-    "Sci/Tech": "Scientists developed a new AI model that beats humans in coding."
+    "World 🌍": "The government announced new foreign policy reforms today.",
+    "Sports ⚽": "The team won the championship after a dramatic final match.",
+    "Business 💼": "Stock markets surged after interest rate cuts by the central bank.",
+    "Sci/Tech 🤖": "Scientists developed a new AI model that outperforms humans in coding."
 }
 
-if st.button("Load Sample"):
-    text = list(samples.values())[0]
-    st.session_state["text"] = text
+# ----------------------------
+# USER CHOICE
+# ----------------------------
+option = st.selectbox(
+    "Choose a sample or write your own",
+    ["Write my own"] + list(samples.keys())
+)
 
-text = st.text_area("News Input", value=st.session_state.get("text", ""))
+# ----------------------------
+# TEXT INPUT LOGIC
+# ----------------------------
+if option == "Write my own":
+    text = st.text_area("Enter your news text")
+else:
+    text = samples[option]
+    st.text_area("Selected sample", value=text, height=120)
 
 # ----------------------------
 # PREDICTION
