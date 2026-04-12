@@ -2,10 +2,8 @@ from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from torch.utils.data import DataLoader
 import torch
-import os
 
 dataset = load_dataset("ag_news")
-
 labels = ["World", "Sports", "Business", "Sci/Tech"]
 
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
@@ -21,7 +19,6 @@ train_ds.set_format("torch", columns=cols)
 test_ds.set_format("torch", columns=cols)
 
 train_loader = DataLoader(train_ds, batch_size=16, shuffle=True)
-test_loader = DataLoader(test_ds, batch_size=16)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -33,7 +30,6 @@ model = AutoModelForSequenceClassification.from_pretrained(
 optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 loss_fn = torch.nn.CrossEntropyLoss()
 
-# TRAIN
 for epoch in range(2):
     model.train()
     total_loss = 0
@@ -43,10 +39,10 @@ for epoch in range(2):
 
         input_ids = batch["input_ids"].to(device)
         attention_mask = batch["attention_mask"].to(device)
-        labels = batch["label"].to(device)
+        labels_batch = batch["label"].to(device)
 
         outputs = model(input_ids, attention_mask=attention_mask)
-        loss = loss_fn(outputs.logits, labels)
+        loss = loss_fn(outputs.logits, labels_batch)
 
         loss.backward()
         optimizer.step()
@@ -55,9 +51,8 @@ for epoch in range(2):
 
     print(f"Epoch {epoch+1} Loss: {total_loss/len(train_loader):.4f}")
 
-# SAVE MODEL
-os.makedirs("saved_model", exist_ok=True)
-model.save_pretrained("saved_model/model")
-tokenizer.save_pretrained("saved_model/tokenizer")
+# SAVE MODEL (IMPORTANT)
+model.save_pretrained("./model")
+tokenizer.save_pretrained("./tokenizer")
 
-print("Model saved successfully 🚀")
+print("Model saved ✔")
