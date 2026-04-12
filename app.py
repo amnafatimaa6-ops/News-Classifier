@@ -1,30 +1,38 @@
 import streamlit as st
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import os
 
-# Load model
-MODEL_PATH = "saved_model/model"
-TOKENIZER_PATH = "saved_model/tokenizer"
+labels = ["World", "Sports", "Business", "Sci/Tech"]
 
-tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_PATH)
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
+MODEL_PATH = "./model"
+TOKENIZER_PATH = "./tokenizer"
+
+# 🔥 FIX: fallback if model not found on Streamlit Cloud
+if os.path.exists(MODEL_PATH) and os.path.exists(TOKENIZER_PATH):
+    tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_PATH)
+    model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
+else:
+    st.warning("Local model not found → using base BERT (untrained)")
+    tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+    model = AutoModelForSequenceClassification.from_pretrained(
+        "bert-base-uncased",
+        num_labels=4
+    )
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 model.eval()
 
-labels = ["World", "Sports", "Business", "Sci/Tech"]
-
 st.title("📰 AG News Classifier (BERT)")
-st.write("Paste a news headline or article and I’ll classify it.")
 
-text = st.text_area("Enter text here:")
+text = st.text_area("Enter news text")
 
 if st.button("Predict"):
-    if text.strip() == "":
-        st.warning("Enter some text first bro 😭")
+    if not text.strip():
+        st.error("Type something bro 😭")
     else:
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=64)
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
         with torch.no_grad():
