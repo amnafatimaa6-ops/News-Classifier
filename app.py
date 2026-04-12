@@ -21,38 +21,35 @@ model.to(device)
 model.eval()
 
 # ----------------------------
-# SAMPLE DATA
+# SAMPLES (ONLY FOR QUICK TESTING)
 # ----------------------------
 samples = {
-    "World 🌍": "The government announced new foreign policy reforms today.",
-    "Sports ⚽": "The team won the championship after a dramatic final match.",
-    "Business 💼": "Stock markets surged after interest rate cuts by the central bank.",
-    "Sci/Tech 🤖": "Scientists developed a new AI model that outperforms humans in coding."
+    "Sample 1": "The government announced new foreign policy reforms today.",
+    "Sample 2": "The team won the championship after a dramatic final match.",
+    "Sample 3": "Stock markets surged after interest rate cuts.",
+    "Sample 4": "Scientists developed a new AI model that beats humans in coding."
 }
 
 # ----------------------------
-# USER CHOICE
+# INPUT MODE
 # ----------------------------
-option = st.selectbox(
-    "Choose a sample or write your own",
-    ["Write my own"] + list(samples.keys())
-)
+mode = st.radio("Choose input mode:", ["Write my own", "Use sample"])
 
-# ----------------------------
-# TEXT INPUT LOGIC
-# ----------------------------
-if option == "Write my own":
-    text = st.text_area("Enter your news text")
+text = ""
+
+if mode == "Use sample":
+    choice = st.selectbox("Pick a sample", list(samples.keys()))
+    text = samples[choice]
+    st.info(text)
 else:
-    text = samples[option]
-    st.text_area("Selected sample", value=text, height=120)
+    text = st.text_area("Enter your news text")
 
 # ----------------------------
 # PREDICTION
 # ----------------------------
 if st.button("Predict"):
     if not text.strip():
-        st.warning("Please enter some text.")
+        st.warning("Write something first.")
     else:
         inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
         inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -63,4 +60,4 @@ if st.button("Predict"):
             pred = torch.argmax(probs, dim=1).item()
 
         st.success(f"Prediction: {labels[pred]}")
-        st.write("Confidence:", float(probs[0][pred]))
+        st.write("Confidence:", round(float(probs[0][pred]), 4))
