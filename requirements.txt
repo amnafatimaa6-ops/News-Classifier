@@ -4,3 +4,6 @@ datasets
 scikit-learn
 streamlit
 pandas
+numpy
+matplotlib
+seaborn
