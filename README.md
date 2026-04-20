@@ -6,7 +6,9 @@ A lightweight, research-focused NLP dashboard built using Transformer models to 
 
 This project demonstrates real-world NLP inference, model evaluation, and interactive prediction using a clean and minimal UI.
 
-LIVE DEMO
+### 📸 App Demo 1
+
+![Demo 1](demo1.gif)
 
 https://news-classifier-l3krtdmnrcmgxeszhkiw2f.streamlit.app/
 
