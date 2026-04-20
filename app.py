@@ -39,7 +39,7 @@ model.eval()
 # ----------------------------
 page = st.sidebar.radio(
     "Navigation",
-    ["🔮 Predict", "📊 Evaluation Demo", "📁 Batch Prediction"]
+    ["🔮 Predict", "📊 Evaluation Demo"]
 )
 
 # =========================================================
@@ -96,7 +96,7 @@ if page == "🔮 Predict":
             st.write(f"🔹 {labels[idx]} → {float(topk.values[i]):.3f}")
 
 # =========================================================
-# 📊 EVALUATION PAGE (RESEARCH PART)
+# 📊 EVALUATION PAGE
 # =========================================================
 elif page == "📊 Evaluation Demo":
 
@@ -104,7 +104,6 @@ elif page == "📊 Evaluation Demo":
 
     st.write("This section demonstrates how research evaluation is presented.")
 
-    # fake demo data (since real dataset eval is heavy on cloud)
     true = np.random.randint(0, 4, 200)
     pred = np.random.randint(0, 4, 200)
 
@@ -122,43 +121,3 @@ elif page == "📊 Evaluation Demo":
     fig, ax = plt.subplots()
     sns.heatmap(cm, annot=True, fmt="d", xticklabels=labels, yticklabels=labels, ax=ax)
     st.pyplot(fig)
-
-# =========================================================
-# 📁 BATCH PREDICTION PAGE
-# =========================================================
-elif page == "📁 Batch Prediction":
-
-    st.header("Batch News Classification")
-
-    uploaded_file = st.file_uploader("Upload CSV with column: text", type=["csv"])
-
-    if uploaded_file:
-
-        df = pd.read_csv(uploaded_file)
-
-        if "text" not in df.columns:
-            st.error("CSV must contain a 'text' column")
-        else:
-            results = []
-
-            for text in df["text"]:
-                inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
-                inputs = {k: v.to(device) for k, v in inputs.items()}
-
-                with torch.no_grad():
-                    outputs = model(**inputs)
-                    pred = torch.argmax(outputs.logits, dim=1).item()
-
-                results.append(labels[pred])
-
-            df["prediction"] = results
-
-            st.success("Prediction complete!")
-            st.dataframe(df)
-
-            st.download_button(
-                "Download Results",
-                df.to_csv(index=False),
-                "predictions.csv",
-                "text/csv"
-            )
