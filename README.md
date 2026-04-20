@@ -6,6 +6,13 @@ A lightweight, research-focused NLP dashboard built using Transformer models to 
 
 This project demonstrates real-world NLP inference, model evaluation, and interactive prediction using a clean and minimal UI.
 
+LIVE DEMO
+
+https://news-classifier-l3krtdmnrcmgxeszhkiw2f.streamlit.app/
+
+
+
+
 📌 Overview
 
 This application uses a fine-tuned BERT model to classify news text into four categories:
