@@ -20,8 +20,11 @@ https://news-classifier-l3krtdmnrcmgxeszhkiw2f.streamlit.app/
 This application uses a fine-tuned BERT model to classify news text into four categories:
 
 🌍 World
+
 ⚽ Sports
+
 💼 Business
+
 🤖 Sci/Tech
 
 It is designed as a research + portfolio project, showcasing how modern NLP systems are deployed and evaluated.
